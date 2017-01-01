@@ -88,7 +88,7 @@
     <Compile Include="AsyncRequest.cs" />
     <Compile Include="Integrations.cs" />
     <Compile Include="MyanimelistSenpaiPlugin.cs" />
-    <Compile Include="$(SolutionDir)..\API\RainmeterAPI.cs" />
+    <Compile Include="RainmeterAPI.cs" />
     <Compile Include="Senpai.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
@@ -104,7 +104,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)..\API\DllExporter.exe" "$(ConfigurationName)" "$(PlatformName)" "$(TargetDir)\" "$(TargetFileName)"
+    <PostBuildEvent>"$(SolutionDir)\API\DllExporter.exe" "$(ConfigurationName)" "$(PlatformName)" "$(TargetDir)\" "$(TargetFileName)"
 xcopy /Y "$(OutputDir)$(TargetFileName)" "C:\Users\alperen\AppData\Roaming\Rainmeter\Plugins\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

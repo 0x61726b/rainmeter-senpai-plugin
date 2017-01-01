@@ -4,7 +4,7 @@
 
 Plugin uses your username and fetches your Myanimelist, Senpai.moe current season data, compares them and displays your watching anime in order with airing dates **in your timezone**.
 
-See **SamplePlugin.ini** for usage.
+See **SamplePlugin.ini** for usage or use the **MySenpai_1.0.rmskin** to install.
 
 
 # Important Note
