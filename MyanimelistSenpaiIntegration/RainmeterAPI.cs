@@ -36,6 +36,7 @@ namespace Rainmeter
         [DllImport("Rainmeter.dll", CharSet = CharSet.Unicode)]
         private extern static IntPtr RmReadString(IntPtr rm, string option, string defValue, bool replaceMeasures);
 
+
         [DllImport("Rainmeter.dll", CharSet = CharSet.Unicode)]
         private extern static double RmReadFormula(IntPtr rm, string option, double defValue);
 

@@ -14,6 +14,7 @@ namespace AnimeServicesIntegration
         private String userName_;
         private List<Anime> userList_;
         private List<SenpaiItem> senpaiData_;
+        private List<Nyaa> torrents_;
 
         public Integration(String username)
         {
@@ -21,6 +22,7 @@ namespace AnimeServicesIntegration
 
             userList_ = new List<Anime>();
             senpaiData_ = new List<SenpaiItem>();
+            torrents_ = new List<Nyaa>();
         }
 
         // Should not be called before ::RequestUserAnimelist
@@ -138,11 +140,61 @@ namespace AnimeServicesIntegration
         public List<Anime> GetLatestPlantoWatch(int limit)
         {
             List<Anime> list = GetLatestPlantoWatchInternal();
-            if(list.Count > 0)
+            if (list.Count > 0)
             {
                 return list.GetRange(0, limit);
             }
             return list;
+        }
+
+        public List<Anime> GetLatestUpdatesInternal()
+        {
+            List<Anime> list = new List<Anime>();
+
+            if (userList_.Count > 0)
+            {
+                list.AddRange(userList_);
+
+                list.Sort(delegate (Anime a, Anime b)
+                {
+                    return b.LastUpdated.CompareTo(a.LastUpdated);
+                });
+            }
+            return list;
+        }
+
+        public List<Anime> GetLatestUpdates(int limit)
+        {
+            List<Anime> list = GetLatestUpdatesInternal();
+            if (list.Count > 0)
+            {
+                return list.GetRange(0, limit);
+            }
+            return list;
+        }
+
+        public void RequestTorrents()
+        {
+            String url = "https://www.nyaa.se/?page=rss&cats=1_37&filter=2";
+            Uri uri = new Uri(url);
+
+            AsyncRequest request = new AsyncRequest(uri, delegate (string results)
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(results);
+
+                XmlNodeList list = doc.SelectNodes("rss/channel/item");
+
+                foreach(XmlNode element in list)
+                {
+                    XmlNode title = element.SelectSingleNode("title");
+                    XmlNode link = element.SelectSingleNode("link");
+                    XmlNode desc = element.SelectSingleNode("description");
+
+                    Nyaa nyaa = new Nyaa(title, link, desc);
+                    torrents_.Add(nyaa);
+                }
+            });
         }
 
         public void RequestUserAnimelist(String username)
@@ -151,7 +203,7 @@ namespace AnimeServicesIntegration
 
             Uri uri = new Uri(url);
 
-            if(userList_.Count > 0)
+            if (userList_.Count > 0)
             {
                 userList_.Clear();
             }
@@ -169,7 +221,11 @@ namespace AnimeServicesIntegration
                      XmlNode title = element.SelectSingleNode("series_title");
                      XmlNode status = element.SelectSingleNode("my_status");
                      XmlNode lastUpdated = element.SelectSingleNode("my_last_updated");
-                     userList_.Add(new Anime(id, title, status, lastUpdated));
+                     XmlNode animestatus = element.SelectSingleNode("series_status");
+
+                     XmlNode watched = element.SelectSingleNode("my_watched_episodes");
+                     XmlNode total = element.SelectSingleNode("series_episodes");
+                     userList_.Add(new Anime(id, title, status, lastUpdated, animestatus, watched, total));
                  }
 
                  // TO do, make it so that Rainmeter calls update every 0.1 seconds while this is processing.
