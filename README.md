@@ -4,7 +4,7 @@
 
 Plugin uses your username and fetches your Myanimelist, Senpai.moe current season data, compares them and displays your watching anime in order with airing dates **in your timezone**.
 
-See ExampleUsage folder. Copy pasting the folder into your skins folder should work.
+See ExampleUsage folder. Copy pasting the folder into your skins folder should work if you compiled the DLL yourself.
 
 
 # Important Note
