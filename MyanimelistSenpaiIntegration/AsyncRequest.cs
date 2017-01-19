@@ -57,6 +57,8 @@ namespace MALSenpaiPlugin
             //  that came from the request issued above.
             WebResponse resp = req.EndGetResponse(ar);
 
+            
+
             //  Start reading data from the response stream.
             Stream ResponseStream = resp.GetResponseStream();
 

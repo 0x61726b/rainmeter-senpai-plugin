@@ -34,8 +34,16 @@ namespace AnimeServicesIntegration
 
             AsyncRequest request = new AsyncRequest(new Uri(url), delegate (string results)
             {
-                senpaiData_ = Utilities.ParseSenpai(results);
+                if(results.Length > 0)
+                    senpaiData_ = Utilities.ParseSenpai(results);
             });
+        }
+
+        public void Reload()
+        {
+            userList_.Clear();
+            senpaiData_.Clear();
+            torrents_.Clear();
         }
 
         public List<SenpaiItem> GetUpcomingAnime()
@@ -180,19 +188,22 @@ namespace AnimeServicesIntegration
 
             AsyncRequest request = new AsyncRequest(uri, delegate (string results)
             {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(results);
-
-                XmlNodeList list = doc.SelectNodes("rss/channel/item");
-
-                foreach(XmlNode element in list)
+                if (results.Length > 0)
                 {
-                    XmlNode title = element.SelectSingleNode("title");
-                    XmlNode link = element.SelectSingleNode("link");
-                    XmlNode desc = element.SelectSingleNode("description");
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(results);
 
-                    Nyaa nyaa = new Nyaa(title, link, desc);
-                    torrents_.Add(nyaa);
+                    XmlNodeList list = doc.SelectNodes("rss/channel/item");
+
+                    foreach (XmlNode element in list)
+                    {
+                        XmlNode title = element.SelectSingleNode("title");
+                        XmlNode link = element.SelectSingleNode("link");
+                        XmlNode desc = element.SelectSingleNode("description");
+
+                        Nyaa nyaa = new Nyaa(title, link, desc);
+                        torrents_.Add(nyaa);
+                    }
                 }
             });
         }
@@ -210,25 +221,26 @@ namespace AnimeServicesIntegration
 
             AsyncRequest request = new AsyncRequest(uri, delegate (string results)
              {
-                 XmlDocument doc = new XmlDocument();
-                 doc.LoadXml(results);
-
-                 XmlNodeList list = doc.SelectNodes("myanimelist/anime");
-
-                 foreach (XmlNode element in list)
+                 if(results.Length > 0)
                  {
-                     XmlNode id = element.SelectSingleNode("series_animedb_id");
-                     XmlNode title = element.SelectSingleNode("series_title");
-                     XmlNode status = element.SelectSingleNode("my_status");
-                     XmlNode lastUpdated = element.SelectSingleNode("my_last_updated");
-                     XmlNode animestatus = element.SelectSingleNode("series_status");
+                     XmlDocument doc = new XmlDocument();
+                     doc.LoadXml(results);
 
-                     XmlNode watched = element.SelectSingleNode("my_watched_episodes");
-                     XmlNode total = element.SelectSingleNode("series_episodes");
-                     userList_.Add(new Anime(id, title, status, lastUpdated, animestatus, watched, total));
+                     XmlNodeList list = doc.SelectNodes("myanimelist/anime");
+
+                     foreach (XmlNode element in list)
+                     {
+                         XmlNode id = element.SelectSingleNode("series_animedb_id");
+                         XmlNode title = element.SelectSingleNode("series_title");
+                         XmlNode status = element.SelectSingleNode("my_status");
+                         XmlNode lastUpdated = element.SelectSingleNode("my_last_updated");
+                         XmlNode animestatus = element.SelectSingleNode("series_status");
+
+                         XmlNode watched = element.SelectSingleNode("my_watched_episodes");
+                         XmlNode total = element.SelectSingleNode("series_episodes");
+                         userList_.Add(new Anime(id, title, status, lastUpdated, animestatus, watched, total));
+                     }
                  }
-
-                 // TO do, make it so that Rainmeter calls update every 0.1 seconds while this is processing.
              });
         }
 

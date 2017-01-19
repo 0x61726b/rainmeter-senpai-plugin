@@ -5,6 +5,7 @@ using Rainmeter;
 using AnimeServicesIntegration;
 using Newtonsoft.Json;
 
+
 namespace MALSenpaiPlugin
 {
     public class ReturnUpcomingAnime
@@ -32,29 +33,104 @@ namespace MALSenpaiPlugin
     }
     internal class Measure
     {
+        private bool updateInProgress = true;
+        private DateTime LastUpdate = DateTime.Now;
+        private String username_;
+        private int updateDelay_;
 
-        internal Measure()
+        internal Measure(String username,int updateDelay)
         {
+            try
+            {
+                if(Plugin.AnimeIntegration != null)
+                {
+                    Plugin.AnimeIntegration.RequestUserAnimelist(username);
+                    Plugin.AnimeIntegration.RequestSenpai();
+                }
+            }
+            catch (Exception)
+            {
 
+            }
+
+            LastUpdate = DateTime.Now;
+
+            username_ = username;
+            updateDelay_ = updateDelay;
         }
 
         internal void Reload(Rainmeter.API rm, ref double maxValue)
         {
-            
+            //Plugin.AnimeIntegration.Reload();
+            //List<SenpaiItem> upcoming = Plugin.AnimeIntegration.GetUpcomingAnime();
+            //List<Anime> ptw = Plugin.AnimeIntegration.GetLatestUpdates(5);
+
+            //if(upcoming.Count > 0 && ptw.Count > 0 && initComplete)
+            //{
+            //    String username = rm.ReadString("MalUser", "");
+            //    API.Log(API.LogType.Debug, "Reloading MyAnimelist for user " + username);
+
+            //    Plugin.AnimeIntegration.Reload();
+            //    Plugin.AnimeIntegration.RequestUserAnimelist(username);
+            //    Plugin.AnimeIntegration.RequestSenpai();
+
+            //    updateInProgress = true;
+            //}
         }
 
         internal double Update()
         {
-            API.Log(API.LogType.Debug, "Waiting for MAL/Senpai requests to complete...");
+            if (!updateInProgress)
+            {
+                bool shouldUpdate = false;
+                DateTime now = DateTime.Now;
+
+                TimeSpan diff = now.Subtract(LastUpdate);
+
+                if (diff.Minutes >= updateDelay_)
+                {
+                    shouldUpdate = true;
+                    LastUpdate = now;
+
+                    try
+                    {
+                        if (Plugin.AnimeIntegration != null)
+                        {
+                            Plugin.AnimeIntegration.Reload();
+                            Plugin.AnimeIntegration.RequestUserAnimelist(username_);
+                            Plugin.AnimeIntegration.RequestSenpai();
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+
+                API.Log(API.LogType.Debug, "Should update: " + shouldUpdate.ToString() + " Update Interval: " + updateDelay_.ToString());
+
+                if (shouldUpdate)
+                {
+                    API.Log(API.LogType.Debug, "Updating...");
+                }
+            }
             return 0.0;
         }
 
         internal string GetString()
         {
+            if (updateInProgress)
+            {
+                API.Log(API.LogType.Debug, "Waiting for MAL/Senpai requests to complete...");
+            }
+
             List<SenpaiItem> upcoming = Plugin.AnimeIntegration.GetUpcomingAnime();
             List<Anime> ptw = Plugin.AnimeIntegration.GetLatestUpdates(5);
 
             PluginReturnJson returnValue = new PluginReturnJson();
+
+            bool stage1 = false;
+            bool stage2 = false;
 
             if (upcoming.Count == 0)
             {
@@ -64,6 +140,8 @@ namespace MALSenpaiPlugin
             {
                 returnValue.UpcomingAnime.UpcomingRequestStatus = true;
                 returnValue.UpcomingAnime.UpcomingAnime = upcoming;
+
+                stage1 = true;
             }
 
             if (ptw.Count == 0)
@@ -74,7 +152,11 @@ namespace MALSenpaiPlugin
             {
                 returnValue.LatestUpdates.LatestUpdatesRequestStatus = true;
                 returnValue.LatestUpdates.LatestUpdates = ptw;
+
+                stage2 = true;
             }
+
+            updateInProgress = !(stage1 && stage2);
             return JsonConvert.SerializeObject(returnValue);
         }
     }
@@ -90,16 +172,24 @@ namespace MALSenpaiPlugin
             Rainmeter.API api = new Rainmeter.API(rm);
 
             String username = api.ReadString("MalUser", "");
+            String updateDelay = api.ReadString("UpdateDelay", "");
+            int iUpdateDelay = 60; // 1 hour
+
+            try
+            {
+                iUpdateDelay = Int32.Parse(updateDelay);
+            }
+            catch (Exception)
+            {
+                
+            }
 
             if (!String.IsNullOrEmpty(username) && AnimeIntegration == null)
             {
                 AnimeIntegration = new Integration(username);
-                API.Log(API.LogType.Debug, "Requesting MyAnimelist for user " + username);
-                Plugin.AnimeIntegration.RequestUserAnimelist(username);
-                Plugin.AnimeIntegration.RequestSenpai();
             }
 
-            data = GCHandle.ToIntPtr(GCHandle.Alloc(new Measure()));
+            data = GCHandle.ToIntPtr(GCHandle.Alloc(new Measure(username,iUpdateDelay)));
         }
 
         [DllExport]

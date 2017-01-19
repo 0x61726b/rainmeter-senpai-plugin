@@ -13,6 +13,8 @@ function string:split( inSplitPattern, outResults )
   return outResults
 end
 JSON = nil
+
+
 function Initialize()
     PluginDataMeasure = SKIN:GetMeasure('measurePluginData')
 	  PluginData = PluginDataMeasure:GetStringValue()
@@ -39,29 +41,6 @@ function Initialize()
     end
 
     ParsePluginData(plugin_data_table)
-
-    -- -- Parse Upcoming Anime
-    -- for i = 0, #upcoming_anime_array do
-    --     local animeName = upcoming_anime_array[i+1].Name
-    --     local day = upcoming_anime_array[i+1].UserTimezone.rd_weekday
-    --     local hour = upcoming_anime_array[i+1].UserTimezone.rd_time
-    --     print(hour)
-
-    --     SKIN:Bang('!SetOption','TitleLine'..i,'Text',animeName)
-    --     SKIN:Bang('!SetOption','DatesDaysLine'..i,'Text',day)
-    --     SKIN:Bang('!SetOption','DatesHoursLine'..i,'Text',hour)
-    -- end
-
-    -- local splitTable = PluginData:split("\\n")
-    -- for i = 1, #splitTable do
-    --     -- Split again
-    --     local seperatorSplit = splitTable[i]:split("\\seperator")
-
-    --     local animeName = seperatorSplit[1]
-    --     local day = seperatorSplit[2]
-    --     local hour = seperatorSplit[3]
-    --     print(hour)
-    -- end
 end
 
 function ParsePluginData(pluginDataTable)
@@ -71,9 +50,10 @@ function ParsePluginData(pluginDataTable)
   local needs_update = not (upcoming_request_state and latest_updates_state)
 
   if needs_update then
+    InitializeMeters()
     SKIN:Bang('!SetOption','measurePluginData','UpdateDivider',1)
   else
-    SKIN:Bang('!SetOption','measurePluginData','UpdateDivider',-1)
+    SKIN:Bang('!SetOption','measurePluginData','UpdateDivider',1)
   end
   
   -- Upcoming Anime
