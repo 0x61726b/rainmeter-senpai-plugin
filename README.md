@@ -1,4 +1,4 @@
-# Senpai Plugin
+# Senpai Plugin - WIP
 
 ![](http://i.imgur.com/4jymgJw.jpg)
 
