@@ -4,7 +4,22 @@
 
 Plugin uses your username and fetches your Myanimelist, Senpai.moe current season data, compares them and displays your watching anime in order with airing dates **in your timezone**.
 
-See ExampleUsage folder. Copy pasting the folder into your skins folder should work if you compiled the DLL yourself.
+
+# How to install
+
+* Close Rainmeter
+* Download [this](https://www.dropbox.com/s/kdg7terrjmmvxe9/MySenpai.zip?dl=0) file.
+* Go to `%appdata%/Rainmeter/Plugins`
+* Copy & Paste MALSenpaiPlugin.dll
+* Copy FrostedGlass.dll to there (Optional, remove [BlurBehind] section in MAL.ini if you skip this)
+* Go to C:/Program Files/Rainmeter
+* Copy Newtonsoft.Json.dll to there (should be where Rainmeter.exe is, see Important Note section)
+* Go To Documents/Rainmeter/Skins
+* Create a folder named 'MySenpai'
+* Copy JSON.lua MAL.ini MAL.lua
+* Open MAL.ini
+* Find "MalUser"
+* Change it to your name
 
 
 # Important Note
